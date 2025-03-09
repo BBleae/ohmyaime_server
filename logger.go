@@ -24,33 +24,33 @@ var (
 	errorEmoji   = "❌ "
 	successEmoji = "✅ "
 	debugEmoji   = "🔍 "
-	
+
 	// 预定义的翻译映射
 	translations = map[string]string{
 		// 错误信息翻译
-		"aimeId is required":                "需要提供 aimeId 参数",
-		"aimeId must be 20 characters":      "aimeId 必须是20个字符",
-		"AIME folder not found":             "未找到AIME文件夹",
-		"Error writing aime file":           "写入aime文件时出错",
-		"Warning":                           "警告",
-		"not found":                         "未找到",
-		"SendInput failed":                  "发送输入失败",
+		"aimeId is required":           "需要提供 aimeId 参数",
+		"aimeId must be 20 characters": "aimeId 必须是20个字符",
+		"AIME folder not found":        "未找到AIME文件夹",
+		"Error writing aime file":      "写入aime文件时出错",
+		"Warning":                      "警告",
+		"not found":                    "未找到",
+		"SendInput failed":             "发送输入失败",
 		"Run the program with correct AIME folder path as argument": "请使用正确的AIME文件夹路径作为参数运行程序",
-		"Error checking AIME folder":        "检查AIME文件夹时出错",
-		"注册服务失败喵":                     "注册服务失败喵",
-		
+		"Error checking AIME folder":                                "检查AIME文件夹时出错",
+		"注册服务失败喵":                                                   "注册服务失败喵",
+
 		// 常规信息翻译
 		"===== WARNING: AIME FOLDER NOT FOUND =====": "===== 警告：未找到AIME文件夹 =====",
-		"The AIME folder":                  "AIME文件夹",
-		"does not exist":                   "不存在",
-		"This may cause issues with the aime functionality": "这可能会导致aime功能出现问题",
-		"To resolve this issue":            "要解决此问题",
-		"Make sure SDGA150AquaDX is correctly installed": "请确保正确安装了SDGA150AquaDX",
+		"The AIME folder": "AIME文件夹",
+		"does not exist":  "不存在",
+		"This may cause issues with the aime functionality":              "这可能会导致aime功能出现问题",
+		"To resolve this issue":                                          "要解决此问题",
+		"Make sure SDGA150AquaDX is correctly installed":                 "请确保正确安装了SDGA150AquaDX",
 		"Run this program with the correct AIME folder path as argument": "使用正确的AIME文件夹路径作为参数运行此程序",
-		"Example":                          "示例",
+		"Example": "示例",
 		"The program will continue, but some features may not work correctly": "程序将继续运行，但某些功能可能无法正常工作",
-		"AIME folder found":                "已找到AIME文件夹",
-		"Aime ID set successfully":         "成功设置Aime ID",
+		"AIME folder found":                          "已找到AIME文件夹",
+		"Aime ID set successfully":                   "成功设置Aime ID",
 		"==========================================": "==========================================",
 	}
 
@@ -74,10 +74,10 @@ func InitCustomLogger() {
 // Write 实现io.Writer接口，拦截日志输出
 func (l *CustomLogger) Write(p []byte) (n int, err error) {
 	msg := string(p)
-	
+
 	// 翻译并美化消息
 	beautifiedMsg := translateAndBeautify(msg)
-	
+
 	// 写入到原始输出
 	return l.out.Write([]byte(beautifiedMsg))
 }
@@ -86,10 +86,10 @@ func (l *CustomLogger) Write(p []byte) (n int, err error) {
 func translateAndBeautify(msg string) string {
 	translatorMutex.RLock()
 	defer translatorMutex.RUnlock()
-	
+
 	// 确定日志级别和对应的emoji
 	var emoji string
-	
+
 	if strings.Contains(strings.ToLower(msg), "warn") || strings.Contains(msg, "====") {
 		emoji = warnEmoji
 	} else if strings.Contains(strings.ToLower(msg), "error") || strings.Contains(strings.ToLower(msg), "failed") {
@@ -101,13 +101,13 @@ func translateAndBeautify(msg string) string {
 	} else {
 		emoji = infoEmoji
 	}
-	
+
 	// 应用翻译映射
 	translatedMsg := msg
 	for eng, chn := range translations {
 		translatedMsg = strings.Replace(translatedMsg, eng, chn, -1)
 	}
-	
+
 	// 添加emoji和格式化
 	return fmt.Sprintf("%s %s", emoji, translatedMsg)
 }
@@ -117,15 +117,15 @@ func CustomGinLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 开始时间
 		startTime := time.Now()
-		
+
 		// 处理请求
 		c.Next()
-		
+
 		// 结束时间
 		endTime := time.Now()
 		// 执行时间
 		latency := endTime.Sub(startTime)
-		
+
 		// 请求方法
 		reqMethod := c.Request.Method
 		// 请求路由
@@ -134,7 +134,7 @@ func CustomGinLogger() gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		// 请求IP
 		clientIP := c.ClientIP()
-		
+
 		// 状态码对应的emoji
 		var statusEmoji string
 		if statusCode >= 200 && statusCode < 300 {
@@ -144,11 +144,11 @@ func CustomGinLogger() gin.HandlerFunc {
 		} else {
 			statusEmoji = errorEmoji
 		}
-		
+
 		// 美化日志输出
 		logMsg := fmt.Sprintf("%s 请求 | 状态: %d | 耗时: %v | IP: %s | %s %s",
 			statusEmoji, statusCode, latency, clientIP, reqMethod, reqUri)
-		
+
 		fmt.Println(logMsg)
 	}
 }
@@ -158,17 +158,17 @@ func TranslateError(err error) string {
 	if err == nil {
 		return ""
 	}
-	
+
 	translatorMutex.RLock()
 	defer translatorMutex.RUnlock()
-	
+
 	errMsg := err.Error()
 	for eng, chn := range translations {
 		if strings.Contains(errMsg, eng) {
 			errMsg = strings.Replace(errMsg, eng, chn, -1)
 		}
 	}
-	
+
 	return fmt.Sprintf("%s %s", errorEmoji, errMsg)
 }
 
@@ -178,35 +178,14 @@ func CustomJSONMiddleware() gin.HandlerFunc {
 		// 创建自定义ResponseWriter
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 		c.Writer = blw
-		
+
 		c.Next()
-		
-		// 如果内容类型是JSON，则翻译和美化
+
+		// 如果内容类型是JSON，则添加emoji
 		if strings.Contains(c.Writer.Header().Get("Content-Type"), "application/json") {
+			// 将原始的JSON数据解析到map
 			var objMap map[string]interface{}
 			if err := json.Unmarshal(blw.body.Bytes(), &objMap); err == nil {
-				// 翻译错误消息
-				if errMsg, exists := objMap["error"]; exists {
-					if errStr, ok := errMsg.(string); ok {
-						for eng, chn := range translations {
-							if strings.Contains(errStr, eng) {
-								objMap["error"] = strings.Replace(errStr, eng, chn, -1)
-							}
-						}
-					}
-				}
-				
-				// 翻译其他字段
-				for key, val := range objMap {
-					if strVal, ok := val.(string); ok {
-						for eng, chn := range translations {
-							if strings.Contains(strVal, eng) {
-								objMap[key] = strings.Replace(strVal, eng, chn, -1)
-							}
-						}
-					}
-				}
-				
 				// 添加emoji到不同类型的响应
 				if _, hasError := objMap["error"]; hasError {
 					objMap["emoji"] = errorEmoji
@@ -215,12 +194,20 @@ func CustomJSONMiddleware() gin.HandlerFunc {
 				} else {
 					objMap["emoji"] = infoEmoji
 				}
-				
+
 				// 将修改后的JSON写回
 				newJSON, _ := json.Marshal(objMap)
+				// 重设内容长度头
 				c.Header("Content-Length", fmt.Sprint(len(newJSON)))
-				c.Writer.Write(newJSON)
+				// 写入原始的ResponseWriter
+				blw.ResponseWriter.Write(newJSON)
+			} else {
+				// 如果解析失败，直接写回原始内容
+				blw.ResponseWriter.Write(blw.body.Bytes())
 			}
+		} else {
+			// 如果不是JSON，直接写回原始内容
+			blw.ResponseWriter.Write(blw.body.Bytes())
 		}
 	}
 }
@@ -233,8 +220,9 @@ type bodyLogWriter struct {
 
 // Write 实现ResponseWriter的Write方法
 func (w bodyLogWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
-	return w.ResponseWriter.Write(b)
+	// 只将数据写入缓冲区，不写入原始的ResponseWriter
+	// 实际的写入会在中间件中完成
+	return w.body.Write(b)
 }
 
 // 获取HTTP错误对应的友好中文消息
@@ -248,10 +236,10 @@ func GetHttpErrorMessage(statusCode int) string {
 		http.StatusInternalServerError: "服务器内部错误",
 		http.StatusServiceUnavailable:  "服务不可用",
 	}
-	
+
 	if msg, ok := messages[statusCode]; ok {
 		return fmt.Sprintf("%s %s", errorEmoji, msg)
 	}
-	
+
 	return fmt.Sprintf("%s 未知错误 (状态码: %d)", errorEmoji, statusCode)
 }
