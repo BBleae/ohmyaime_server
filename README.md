@@ -14,7 +14,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ### 系统要求
 
 - Windows 操作系统（程序使用了 Windows API 进行按键模拟）
-- 已安装 SDGA150AquaDX 游戏及 AMDaemon
+- 已安装 Sinmai.exe 游戏及 SegaTools
 
 ### 运行方法
 
@@ -23,7 +23,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ./ohmyaime_server
 
 # 使用自定义 Aime 文件夹路径
-./ohmyaime_server D:\自定义路径\DEVICE
+./ohmyaime_server D:\SDGA-1.50\AMDaemon\DEVICE
 ```
 
 服务器默认监听 `0.0.0.0:8080`，可以通过浏览器或其他 HTTP 客户端访问。
@@ -98,7 +98,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 {
   "emoji": "ℹ️",
   "sinmai_running": true,
-  "aime_folder_path": "D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
+  "aime_folder_path": "D:\\SDGA-1.50\\AMDaemon\\DEVICE",
   "aime_folder_exists": true
 }
 ```
@@ -109,9 +109,9 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 {
   "emoji": "⚠️",
   "sinmai_running": false,
-  "aime_folder_path": "D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
+  "aime_folder_path": "D:\\SDGA-1.50\\AMDaemon\\DEVICE",
   "aime_folder_exists": false,
-  "aime_folder_error": "AIME folder not found: D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
+  "aime_folder_error": "AIME folder not found: D:\\SDGA-1.50\\AMDaemon\\DEVICE",
   "solution": "Run the program with correct AIME folder path as argument"
 }
 ```

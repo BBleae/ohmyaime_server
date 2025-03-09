@@ -41,7 +41,7 @@ func getAimeFolder() string {
 	sinmaiPath, found := GetProcessPath("Sinmai.exe")
 	if !found {
 		log.Printf("未检测到Sinmai.exe正在运行，无法自动定位AIME文件夹")
-		panic("无法找到AIME文件夹。请确保Sinmai.exe正在运行，或通过命令行参数指定AIME文件夹路径。例如: ./ohmyaime D:\\SDGA150AquaDX\\AMDaemon\\DEVICE")
+		panic("无法找到AIME文件夹。请确保Sinmai.exe正在运行，或通过命令行参数指定AIME文件夹路径。例如: ./ohmyaime D:\\SDGA-1.50\\AMDaemon\\DEVICE")
 	}
 
 	log.Printf("找到Sinmai.exe路径: %s", sinmaiPath)
