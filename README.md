@@ -12,6 +12,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ## 📋 安装与运行
 
 ### 系统要求
+
 - Windows 操作系统（程序使用了 Windows API 进行按键模拟）
 - 已安装 SDGA150AquaDX 游戏及 AMDaemon
 

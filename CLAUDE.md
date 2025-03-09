@@ -1,6 +1,7 @@
 # CLAUDE.md - Guidelines for ohmyaime Go Project
 
 ## Build Commands
+
 - Build: `go build`
 - Run: `go run main.go wm.go`
 - Run with custom path: `go run main.go wm.go [custom_aime_folder_path]`
@@ -9,6 +10,7 @@
 - Run with debug: `go run -race main.go wm.go`
 
 ## Code Style Guidelines
+
 - **Imports**: Standard library first, third-party separated by blank line
 - **Error Handling**: Check errors immediately, use panic only for initialization failures
 - **Naming**: CamelCase for exported functions, lowerCamelCase for internal
