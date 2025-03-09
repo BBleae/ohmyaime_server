@@ -13,8 +13,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
 var (
@@ -23,7 +21,7 @@ var (
 	warnEmoji    = "⚠️ "
 	errorEmoji   = "❌ "
 	successEmoji = "✅ "
-	debugEmoji   = "🔍 "
+	// debugEmoji   = "🔍 "
 
 	// 预定义的翻译映射
 	translations = map[string]string{
@@ -56,7 +54,7 @@ var (
 
 	// 创建一个带锁的翻译器，以便于并发访问
 	translatorMutex sync.RWMutex
-	printer         = message.NewPrinter(language.Chinese)
+	// printer         = message.NewPrinter(language.Chinese)
 )
 
 // CustomLogger 自定义的日志记录器，支持美化和翻译
@@ -164,9 +162,7 @@ func TranslateError(err error) string {
 
 	errMsg := err.Error()
 	for eng, chn := range translations {
-		if strings.Contains(errMsg, eng) {
-			errMsg = strings.Replace(errMsg, eng, chn, -1)
-		}
+		errMsg = strings.Replace(errMsg, eng, chn, -1)
 	}
 
 	return fmt.Sprintf("%s %s", errorEmoji, errMsg)
