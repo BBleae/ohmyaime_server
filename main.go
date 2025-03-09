@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,39 +17,88 @@ var AIME_FOLDER_PATH string
 func init() {
 	// 初始化自定义日志记录器
 	InitCustomLogger()
+
+	// 获取AIME文件夹路径
+	// getAimeFolder函数会自动处理错误情况并在必要时panic
 	AIME_FOLDER_PATH = getAimeFolder()
-	// Check if AIME folder exists
-	if _, err := os.Stat(AIME_FOLDER_PATH); os.IsNotExist(err) {
-		log.Println("===== WARNING: AIME FOLDER NOT FOUND =====")
-		log.Printf("The AIME folder '%s' does not exist.\n", AIME_FOLDER_PATH)
-		log.Println("This may cause issues with the aime functionality.")
-		log.Println("")
-		log.Println("To resolve this issue:")
-		log.Println("1. Make sure SDGA150AquaDX is correctly installed")
-		log.Println("2. Run this program with the correct AIME folder path as argument:")
-		log.Println("   Example: ./ohmyaime D:\\path\\to\\DEVICE")
-		log.Println("")
-		log.Println("The program will continue, but some features may not work correctly.")
-		log.Println("==========================================")
-	} else {
-		log.Printf("AIME folder found: %s\n", AIME_FOLDER_PATH)
-	}
+
+	// 由于成功找到了AIME文件夹（否则会在getAimeFolder中panic），输出确认信息
+	log.Printf("AIME folder found: %s\n", AIME_FOLDER_PATH)
 }
 
 func getAimeFolder() string {
-	defaultFolder := "D:\\SDGA150AquaDX\\AMDaemon\\DEVICE"
-	if CheckFolderExists(defaultFolder) {
-		return defaultFolder
-	}
-	//read from args
+	// 1. 首先优先检查命令行参数
 	if len(os.Args) > 1 {
 		if CheckFolderExists(os.Args[1]) {
+			log.Printf("使用命令行指定的AIME文件夹: %s", os.Args[1])
 			return os.Args[1]
+		} else {
+			log.Printf("命令行参数指定的文件夹不存在: %s", os.Args[1])
 		}
 	}
-	// If we reached here, none of the folders exist
-	// We'll return the default folder anyway, but the program will show warnings
-	return defaultFolder
+
+	// 2. 检查Sinmai.exe是否正在运行，并获取其路径
+	sinmaiPath, found := GetProcessPath("Sinmai.exe")
+	if !found {
+		log.Printf("未检测到Sinmai.exe正在运行，无法自动定位AIME文件夹")
+		panic("无法找到AIME文件夹。请确保Sinmai.exe正在运行，或通过命令行参数指定AIME文件夹路径。例如: ./ohmyaime D:\\SDGA150AquaDX\\AMDaemon\\DEVICE")
+	}
+
+	log.Printf("找到Sinmai.exe路径: %s", sinmaiPath)
+
+	// 获取Sinmai.exe所在的目录
+	sinmaiDir := filepath.Dir(sinmaiPath)
+
+	// 3. 从Sinmai.exe所在目录开始，向上递归查找
+	currentPath := sinmaiDir
+
+	// 定义可能的文件夹名称
+	folderName := "AMDaemon\\DEVICE"
+
+	// 存储已检查的路径，避免重复检查
+	checkedPaths := make(map[string]bool)
+
+	for {
+		// 构建可能的AIME文件夹路径
+		possiblePath := filepath.Join(currentPath, folderName)
+
+		// 如果已经检查过，跳过
+		if _, checked := checkedPaths[possiblePath]; checked {
+			break
+		}
+		checkedPaths[possiblePath] = true
+
+		log.Printf("检查潜在的AIME文件夹: %s", possiblePath)
+
+		// 检查文件夹是否存在
+		if CheckFolderExists(possiblePath) {
+			log.Printf("找到AIME文件夹: %s", possiblePath)
+			return possiblePath
+		}
+
+		// 获取上一级目录
+		parentDir := filepath.Dir(currentPath)
+
+		// 如果到达了根目录，或者发现我们不再有上升的空间（即当前路径与父目录相同）
+		if parentDir == currentPath {
+			break
+		}
+
+		// 上升到父目录继续查找
+		currentPath = parentDir
+	}
+
+	// 如果到这里还没找到，抛出详细的错误
+	errorMsg := "无法找到AIME文件夹。自动查找已检查以下路径:\n"
+	for path := range checkedPaths {
+		errorMsg += fmt.Sprintf("  - %s\n", path)
+	}
+	errorMsg += "\n可能的解决方法:\n"
+	errorMsg += "1. 确保Sinmai.exe正在运行\n"
+	errorMsg += "2. 在命令行中指定AIME文件夹的完整路径: ./ohmyaime 完整路径\n"
+	errorMsg += "3. 手动创建AIME文件夹: " + filepath.Join(sinmaiDir, folderName)
+
+	panic(errorMsg)
 }
 
 func CheckFolderExists(folder string) bool {

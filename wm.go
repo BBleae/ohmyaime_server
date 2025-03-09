@@ -8,13 +8,15 @@ import (
 )
 
 const (
-	KEYEVENTF_KEYDOWN  = 0x0000
-	KEYEVENTF_KEYUP    = 0x0002
-	PROCESS_ALL_ACCESS = 0x1F0FFF
-	WM_KEYDOWN         = 0x0100
-	WM_KEYUP           = 0x0101
-	TH32CS_SNAPPROCESS = 0x00000002
-	MAX_PATH           = 260
+	KEYEVENTF_KEYDOWN         = 0x0000
+	KEYEVENTF_KEYUP           = 0x0002
+	PROCESS_ALL_ACCESS        = 0x1F0FFF
+	PROCESS_QUERY_INFORMATION = 0x0400
+	PROCESS_VM_READ           = 0x0010
+	WM_KEYDOWN                = 0x0100
+	WM_KEYUP                  = 0x0101
+	TH32CS_SNAPPROCESS        = 0x00000002
+	MAX_PATH                  = 260
 )
 
 type PROCESSENTRY32 struct {
@@ -32,17 +34,26 @@ type PROCESSENTRY32 struct {
 
 // IsProcessRunning checks if a process with the given name is running
 func IsProcessRunning(processName string) bool {
+	_, found := GetProcessPath(processName)
+	return found
+}
+
+// GetProcessPath returns the full path of a running process and a bool indicating if it was found
+func GetProcessPath(processName string) (string, bool) {
 	kernel32 := syscall.NewLazyDLL("kernel32.dll")
+	psapi := syscall.NewLazyDLL("psapi.dll")
 	procCreateToolhelp32Snapshot := kernel32.NewProc("CreateToolhelp32Snapshot")
 	procProcess32First := kernel32.NewProc("Process32FirstW")
 	procProcess32Next := kernel32.NewProc("Process32NextW")
 	procCloseHandle := kernel32.NewProc("CloseHandle")
+	procOpenProcess := kernel32.NewProc("OpenProcess")
+	procGetModuleFileNameExW := psapi.NewProc("GetModuleFileNameExW")
 
 	snapshot, _, _ := procCreateToolhelp32Snapshot.Call(
 		uintptr(TH32CS_SNAPPROCESS),
 		uintptr(0))
 	if snapshot == uintptr(syscall.InvalidHandle) {
-		return false
+		return "", false
 	}
 	defer procCloseHandle.Call(snapshot)
 
@@ -51,20 +62,42 @@ func IsProcessRunning(processName string) bool {
 
 	ret, _, _ := procProcess32First.Call(snapshot, uintptr(unsafe.Pointer(&entry)))
 	if ret == 0 {
-		return false
+		return "", false
 	}
 
 	for {
 		name := syscall.UTF16ToString(entry.SzExeFile[:])
 		if name == processName {
-			return true
+			// Process found, now get its full path
+			hProcess, _, _ := procOpenProcess.Call(
+				PROCESS_QUERY_INFORMATION|PROCESS_VM_READ,
+				0,
+				uintptr(entry.Th32ProcessID))
+			
+			if hProcess != 0 {
+				defer procCloseHandle.Call(hProcess)
+				
+				var pathBuf [MAX_PATH]uint16
+				_, _, _ = procGetModuleFileNameExW.Call(
+					hProcess,
+					0,
+					uintptr(unsafe.Pointer(&pathBuf[0])),
+					uintptr(MAX_PATH))
+				
+				path := syscall.UTF16ToString(pathBuf[:])
+				if path != "" {
+					return path, true
+				}
+			}
+			// Even if we couldn't get the path, we found the process
+			return "", true
 		}
 		ret, _, _ := procProcess32Next.Call(snapshot, uintptr(unsafe.Pointer(&entry)))
 		if ret == 0 {
 			break
 		}
 	}
-	return false
+	return "", false
 }
 
 var (
