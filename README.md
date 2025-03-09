@@ -7,7 +7,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 - 💳 Aime 卡模拟：无需实体卡，通过 API 模拟刷卡操作
 - 🔄 状态监控：检查 Sinmai.exe 游戏进程运行状态以及 Aime 文件夹配置
 - 🔎 自动发现：通过 mDNS 实现局域网内自动发现服务
-- 🌏 中文友好：所有日志和错误消息支持中文显示，并带有美观的 emoji
+- 🌏 美观易用：控制台日志展示中文信息并带有美观的 emoji
 
 ## 📋 安装与运行
 
@@ -49,7 +49,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ```json
 {
   "emoji": "✅",
-  "message": "成功设置 Aime ID",
+  "message": "Aime ID set successfully",
   "aimeId": "01234567890123456789"
 }
 ```
@@ -59,7 +59,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ```json
 {
   "emoji": "❌",
-  "error": "需要提供 aimeId 参数"
+  "error": "aimeId is required"
 }
 ```
 
@@ -68,7 +68,7 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ```json
 {
   "emoji": "❌",
-  "error": "aimeId 必须是20个字符"
+  "error": "aimeId must be 20 characters"
 }
 ```
 
@@ -77,8 +77,8 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
 ```json
 {
   "emoji": "❌",
-  "error": "未找到AIME文件夹: D:\\路径\\DEVICE",
-  "solution": "请使用正确的AIME文件夹路径作为参数运行程序"
+  "error": "AIME folder not found: D:\\path\\to\\DEVICE",
+  "solution": "Run the program with correct AIME folder path as argument"
 }
 ```
 
@@ -111,8 +111,8 @@ OhMyAime 是一个用于 Maimaidx 街机游戏的 Aime 卡模拟服务器，提�
   "sinmai_running": false,
   "aime_folder_path": "D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
   "aime_folder_exists": false,
-  "aime_folder_error": "未找到AIME文件夹: D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
-  "solution": "请使用正确的AIME文件夹路径作为参数运行程序"
+  "aime_folder_error": "AIME folder not found: D:\\SDGA150AquaDX\\AMDaemon\\DEVICE",
+  "solution": "Run the program with correct AIME folder path as argument"
 }
 ```
 
